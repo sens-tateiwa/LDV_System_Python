@@ -11,6 +11,7 @@ import cv2
 
 import imageProcessing
 import controlMirror
+import sharedFlag
 
 #videoDirで指定した動画を分割しrootDIrに複数枚の画像として保存する
 def divisionVideo2Image(timeout_ms,timelimit_s,videoDir,rootDir):
@@ -57,9 +58,10 @@ def createVideo(image_list,fps,videoName):#fpsはフレームレート
             image = cv2.cvtColor(image,cv2.COLOR_GRAY2BGR)
         out.write(image)
     out.release()
+    return
 
 #Baslerのカメラからtimelimit_s間timeout_ms間隔で画像を取得し続ける
-def getCameraImage(timelimit_s,timeout_ms):
+def getCameraImage(timeout_ms,timelimit_s=10,isPlotMatchpoint=False):
 
     # トランスポートレイヤーインスタンスを取得
     tl_factory = pylon.TlFactory.GetInstance()
@@ -104,7 +106,7 @@ def getCameraImage(timelimit_s,timeout_ms):
 
             #取得した画像の処理を実行
             #image = imageProcessing.HoughTransform(image)
-            image,distance = imageProcessing.calculateCentor2FingerDistance(image,isPlotMatchpoint=False)
+            image,distance = imageProcessing.calculateCentor2FingerDistance(image,isPlotMatchpoint)
             #cv2.imshow('camera',img)
             #cv2.waitKey(1)
 
@@ -117,12 +119,12 @@ def getCameraImage(timelimit_s,timeout_ms):
 
             grab.Release()    
         #cv2.imwrite('C:/Users/yuto/Documents/system_python/data/'+str(datetime.datetime.now())+'.png', img)    #取得した配列を名前を付けてコンピュータに保存
-        if((time.time()-t1)>timelimit_s):#timelimit秒後
+        if((not sharedFlag.isDataAcquiring)or((time.time()-t1)>timelimit_s)):#timelimit秒後
             camera.StopGrabbing()
-            controlMirror.changeAngle(0,0,mre2)
             print("stop")
         #---撮影の終了
-    fps = 100/timeout_ms#本当は1000ms/timeout/msだがtimeout_msおきに撮影できているか怪しく、かなり動画が短くなるため理論上1/10のfpsで設定
+    controlMirror.changeAngle(0,0,mre2)
+    fps = 100/timeout_ms#本当は1000ms/timeout_msだがtimeout_msおきに撮影できているか怪しく、かなり動画が短くなるため理論上の1/10のfpsで設定
     print("create video")
     createVideo(image_list,fps,videoname)
     print("created video")
@@ -130,6 +132,7 @@ def getCameraImage(timelimit_s,timeout_ms):
     #カメラにおける全ての処理が終了したのでカメラを閉じる
     camera.Close()
     cv2.destroyAllWindows()
+    return
 
 if __name__ == "__main__":
     timeout_ms = 10

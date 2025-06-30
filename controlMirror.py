@@ -10,7 +10,7 @@ def setMirror():
     ch_0.SetControlMode(optoMDC.UnitType.XY)             #電流(current)でなくX,Y値でミラーを制御
     ch_0.LinearOutput.SetCurrentLimit(1.0)               #電流の最大値を制限
     ch_0.Manager.CheckSignalFlow()                       # This is a useful method to make sure the signal flow is configured correctly.
-    si_0 = mre2.Mirror.Channel_0.StaticInput
+    #si_0 = mre2.Mirror.Channel_0.StaticInput
 
     ch_1 = mre2.Mirror.Channel_1
     ch_1.StaticInput.SetAsInput()                        # (1) here we tell the Manager that we will use a static input
@@ -18,7 +18,7 @@ def setMirror():
     ch_1.SetControlMode(optoMDC.UnitType.XY)
     ch_1.LinearOutput.SetCurrentLimit(1.0)
     ch_1.Manager.CheckSignalFlow()                       # This is a useful method to make sure the signal flow is configured correctly.
-    si_1 = mre2.Mirror.Channel_1.StaticInput
+    #si_1 = mre2.Mirror.Channel_1.StaticInput
 
     return mre2
 
